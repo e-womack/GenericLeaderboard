@@ -1,105 +1,84 @@
-//Dependencies
+// Dependencies
 const express = require("express");
 const app = express();
-const mysql = require("mysql");
 const bodyParser = require("body-parser");
+const cors = require("cors");
+const router = express.Router();
 
+// Config
+const sqlconnection = require("./sqlconfig").connection;
+const apiPort = 3000;
+app.use(cors({origin: "*"}));
 
-//Config
-const privates = require("./privates.js");
-const connection = mysql.createConnection({
-    host: privates.dbIP,
-    user: privates.dbUser,
-    password: privates.dbPWD,
-    database: privates.dbName
-});
-const serverPort = 3000;
-
-//Connect to the database
-connection.connect((err) => {
+// Connect to the database
+sqlconnection.connect((err) => {
     if (err) {
         console.log("Error Connecting to DB: ", err.stack);
-    }
-    else {
-        console.log("Connected Successfully with ID: ", connection.threadId);
-    }
-});
-
-//house for queries
-const queries = {
-    selectAll: (cb, tableName) => {
-        connection.query(`SELECT * from ${tableName}`, (err, results) => {
-            if (err) { throw err; }
-            else {
-                cb(results);
-            }
-        });
-    },
-    selectWhere: (cb, tableName, post) => {
-        let query = `Select * from ${tableName} WHERE ?`;
-        let tmp = connection.query(query, post, (err, results) => {
-            cb(results);
-        });
-    },
-    insert: (responseCallback, tableName, validObject) => {
-        let query = `INSERT into ${tableName} values (null`;
-        for (let key in validObject) {
-            query += `, '${validObject[key]}'`;
-        }
-        query += ");";
-        connection.query(query, (err, results) => {
-            responseCallback(validObject);
-        });
-    }
-}
-
-//Validity checks for POST/PUT objects in request bodies
-const validity = {
-    person: ({ name, imgurl, tskillrating }) => {
-        const isValid = (name) && (imgurl) && (tskillrating)
-        if (isValid) {
-            return { name, imgurl, tskillrating };
-        }
-    }
-}
-
-//Middleware
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-
-//GET Requests
-app.get("/player", (req, res) => {
-    queries.selectAll(res.json.bind(res), "Player");
-});
-
-app.get("/player/:id", (req, res) => {
-    const post = { id: req.params.id };
-    queries.selectWhere(res.json.bind(res), "Player", post);
-});
-
-app.get("/match", (req, res) => {
-    queries.selectAll(res.json.bind(res), "MatchResult");
-});
-
-app.get("/matchresult", (req, res) => {
-    queries.selectAll(res.json.bind(res), "PlayerMatches");
-});
-
-//POST Requests
-app.post("/player", (req, res) => {
-    const recievedObj = req.body;
-    const validObj = validity.person(recievedObj);
-    if (validObj) {
-        queries.insert(res.json.bind(res), "Player", validObj);
     } else {
-        res.send("Invalid Object");
+        console.log("Connected Successfully with ID: ", sqlconnection.threadId);
     }
 });
 
-//Start the server on port 3000
-app.listen(serverPort, (err) => {
-    if (err) { console.log("Error starting server: ", err.stack); }
-    else {
-        console.log(`Server running on port ${serverPort}`);
+// Middleware
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+app.use((req, res, next) => {
+    console.log(`[LOG] 
+    Date:[${new Date().toISOString()}] 
+    Method: ${req.method} 
+    Body: ${JSON.stringify(req.body)}`);
+    next();
+});
+
+// Controllers
+const playerController = require("./controllers/player");
+const matchController = require("./controllers/match");
+const matchResultController = require("./controllers/matchresult");
+
+// Routes
+router
+    .route("/player")
+    .get(playerController.getPlayers)
+    .post(playerController.postPlayer);
+
+router
+    .route("/player/:id")
+    .get(playerController.getPlayer)
+    .delete(playerController.deletePlayer)
+    .put(playerController.updatePlayer);
+
+router
+    .route("/top5player")
+    .get(playerController.getTop5Players);
+
+router
+    .route("/match")
+    .get(matchController.getMatchs)
+    .post(matchController.postMatch);
+
+router
+    .route("/match/:id")
+    .get(matchController.getMatch)
+    .delete(matchController.deleteMatch)
+    .put(matchController.updateMatch);
+
+router
+    .route("/matchresult")
+    .get(matchResultController.getMatchResults)
+    .post(matchResultController.postMatchResult);
+
+router
+    .route("/matchresult/:id")
+    .get(matchResultController.getMatchResult)
+    .delete(matchResultController.deleteMatchResult)
+    .put(matchResultController.updateMatchResult);
+
+app.use("/api", router);
+
+// Start the server on port 3000
+app.listen(apiPort, (err) => {
+    if (err) {
+        return console.log("Error starting server: ", err.stack);
     }
+    console.log(`Server running on port ${apiPort}`);
 });

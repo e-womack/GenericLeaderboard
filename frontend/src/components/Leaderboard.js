@@ -1,35 +1,23 @@
 import React, {Component} from 'react';
 import LeaderboardPlayer from './LeaderboardPlayer';
 import '../css/Leaderboard.css';
+import privates from '../config/privates';
 
 export default class Leaderboard extends Component {
 
     // Come from DB on page load or refresh button hit, only grab top 5 players
     // ordered by rating.
-    state = {
-        players: [
-            {
-                id: 'someuniquevalue1',
-                name: 'elliott womack',
-                tskillrating: 1800
-            }, {
-                id: 'someuniquevalue2',
-                name: 'Dev gonsai',
-                tskillrating: 1700
-            }, {
-                id: 'someuniquevalue3',
-                name: 'John Gordon',
-                tskillrating: 800
-            }, {
-                id: 'someuniquevalue4',
-                name: 'Muhammed Shafeeq',
-                tskillrating: 300
-            }, {
-                id: 'someuniquevalue5',
-                name: 'Gareth Davis',
-                tskillrating: 3
-            }
-        ]
+
+    constructor(props) {
+        super(props);
+        this.loadCandidates();
+        this.state = {
+            top5Players: []
+        }
+
+    }
+    loadCandidates = () => {
+        fetch(`${privates.url}/top5player`).then((response) => response.json().then((actualResponse) => this.setState({top5Players: actualResponse}))).catch((err) => console.error("Invalid/No response from server"));
     }
 
     profilePageHandler = (playerID) => {
@@ -41,7 +29,7 @@ export default class Leaderboard extends Component {
         let players = (
             <ol>{this
                     .state
-                    .players
+                    .top5Players
                     .map((player) => {
                         return <LeaderboardPlayer
                             key={player.id}
