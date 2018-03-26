@@ -14,7 +14,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}/backend\\mongo\\server.js"
+            "program": "${workspaceFolder}/backend\\server.js"
         }
     ]
 }

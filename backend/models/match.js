@@ -16,6 +16,14 @@ const MatchSchema = new mongoose.Schema({
     player2Score: {
         type: Number,
         required: true
+    },
+    player1RatingChange: {
+        type: Number,
+        required: true
+    },
+    player2RatingChange: {
+        type: Number,
+        required: true
     }
 });
 
