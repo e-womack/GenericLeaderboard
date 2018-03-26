@@ -5,7 +5,7 @@ const BasicStrategy = require("passport-http").BasicStrategy;
 // Models required for Authentication
 const Player = require("../models/player");
 
-passport.use(new BasicStrategy((username, password, cb) => {
+passport.use(new BasicStrategy((name, password, cb) => {
     Player.findOne({
         name
     }, (err, player) => {

@@ -1,5 +1,5 @@
 const Player = require("../models/player");
-const Match = require("../models/player");
+const Match = require("../models/match");
 
 // Plural requests
 exports.createMatch = (req, res) => {
@@ -83,7 +83,7 @@ exports.getAll = (req, res) => {
 
 // Singular Requests
 exports.getMatch = (req, res) => {
-    Match.getMatch({
+    Match.get({
         _id: req.params.id
     }, (err, result) => {
         if (err) {
