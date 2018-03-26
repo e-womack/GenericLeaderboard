@@ -1,105 +1,67 @@
-//Dependencies
+// Dependencies
 const express = require("express");
-const app = express();
-const mysql = require("mysql");
 const bodyParser = require("body-parser");
+const passport = require("passport");
+const mongoose = require("mongoose");
+const expressLogging = require("express-logging");
+const logger = require("logops");
+const cors = require("cors");
+const privates = require("./privates");
 
+// Express config
+const port = process.env.PORT || 3000;
+const app = express();
+const router = express.Router();
 
-//Config
-const privates = require("./privates.js");
-const connection = mysql.createConnection({
-    host: privates.dbIP,
-    user: privates.dbUser,
-    password: privates.dbPWD,
-    database: privates.dbName
-});
-const serverPort = 3000;
+// Controllers
+const playerController = require("./controllers/player");
+const matchController = require("./controllers/match");
+const authController = require("./controllers/auth");
 
-//Connect to the database
-connection.connect((err) => {
-    if (err) {
-        console.log("Error Connecting to DB: ", err.stack);
-    }
-    else {
-        console.log("Connected Successfully with ID: ", connection.threadId);
-    }
-});
+// Mongo config
+mongoose
+    .connection
+    .on("error", (err) => console.log(err.stack));
+mongoose
+    .connection
+    .on("connected", () => console.log("Connected to DB!"));
+mongoose.connect(privates.mongourl);
 
-//house for queries
-const queries = {
-    selectAll: (cb, tableName) => {
-        connection.query(`SELECT * from ${tableName}`, (err, results) => {
-            if (err) { throw err; }
-            else {
-                cb(results);
-            }
-        });
-    },
-    selectWhere: (cb, tableName, post) => {
-        let query = `Select * from ${tableName} WHERE ?`;
-        let tmp = connection.query(query, post, (err, results) => {
-            cb(results);
-        });
-    },
-    insert: (responseCallback, tableName, validObject) => {
-        let query = `INSERT into ${tableName} values (null`;
-        for (let key in validObject) {
-            query += `, '${validObject[key]}'`;
-        }
-        query += ");";
-        connection.query(query, (err, results) => {
-            responseCallback(validObject);
-        });
-    }
-}
-
-//Validity checks for POST/PUT objects in request bodies
-const validity = {
-    person: ({ name, imgurl, tskillrating }) => {
-        const isValid = (name) && (imgurl) && (tskillrating)
-        if (isValid) {
-            return { name, imgurl, tskillrating };
-        }
-    }
-}
-
-//Middleware
-app.use(bodyParser.urlencoded({ extended: true }));
+// Express middleware
+app.use(cors({origin: "*"}));
+app.use(passport.initialize());
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(expressLogging(logger));
 
-//GET Requests
-app.get("/player", (req, res) => {
-    queries.selectAll(res.json.bind(res), "Player");
-});
+// Routes
+router
+    .route("/player")
+    .post(playerController.createPlayer)
+    .get(playerController.getAll);
 
-app.get("/player/:id", (req, res) => {
-    const post = { id: req.params.id };
-    queries.selectWhere(res.json.bind(res), "Player", post);
-});
+router
+    .route("/player/:id")
+    .get(playerController.getPlayer)
+    .put(authController.isAuthenticated, playerController.updatePlayer)
+    .delete(authController.isAuthenticated, playerController.deletePlayer);
 
-app.get("/match", (req, res) => {
-    queries.selectAll(res.json.bind(res), "MatchResult");
-});
+router
+    .route("/match")
+    .post(authController.isAuthenticated, matchController.createMatch)
+    .get(matchController.getAll);
 
-app.get("/matchresult", (req, res) => {
-    queries.selectAll(res.json.bind(res), "PlayerMatches");
-});
+router
+    .route("/match/:id")
+    .get(matchController.getMatch)
+    .delete(matchController.deleteMatch);
 
-//POST Requests
-app.post("/player", (req, res) => {
-    const recievedObj = req.body;
-    const validObj = validity.person(recievedObj);
-    if (validObj) {
-        queries.insert(res.json.bind(res), "Player", validObj);
-    } else {
-        res.send("Invalid Object");
+app.use("/api", router);
+
+// Start Server
+app.listen(port, (err) => {
+    if (err) {
+        return console.log(err.stack);
     }
-});
-
-//Start the server on port 3000
-app.listen(serverPort, (err) => {
-    if (err) { console.log("Error starting server: ", err.stack); }
-    else {
-        console.log(`Server running on port ${serverPort}`);
-    }
+    console.log(`Successfully running on port ${port}`);
 });
