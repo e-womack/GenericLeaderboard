@@ -22,6 +22,14 @@ const PlayerSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    mu: {
+        type: Number,
+        required: true
+    },
+    sigma: {
+        type: Number,
+        required: true
+    },
     matches: [String]
 });
 

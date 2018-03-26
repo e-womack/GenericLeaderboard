@@ -23,7 +23,8 @@ exports.createPlayer = (req, res) => {
         name: req.body.name,
         password: req.body.password,
         email: req.body.email,
-        tskillrating: 1500,
+        mu: 25,
+        sigma: 1.618,
         winCount: 0,
         lossCount: 0
     };
