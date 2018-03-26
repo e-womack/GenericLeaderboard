@@ -61,7 +61,10 @@ PlayerSchema.statics = {
         }, cb);
     },
     getAll: function (cb) {
-        this.find(cb);
+        this
+            .find()
+            .select({password: 0})
+            .exec(cb);
     },
     updateByID: function (id, updateData, cb) {
         this.findOneAndUpdate({
