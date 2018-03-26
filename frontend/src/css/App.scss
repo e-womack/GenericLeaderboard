@@ -1,24 +1,24 @@
 //colors
-$color_log_cabin_approx: #222;
+$color_log_cabin_approx: rgba(48, 46, 46, 0.795);
 $white: white;
 .App {
   text-align: center;
 }
 
 .App-logo {
-  animation: App-logo-spin infinite 20s linear;
+  animation: App-logo-spin infinite 10s linear;
   height: 80px;
 }
 
 .App-header {
   background-color: $color_log_cabin_approx;
-  height: 150px;
-  padding: 20px;
+  height: 135px;
+  padding: 10px;
   color: $white;
 }
 
 .App-title {
-  font-size: 1.5em;
+  font-size: 1.8em;
 }
 
 .App-intro {
