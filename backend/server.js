@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const expressLogging = require("express-logging");
 const logger = require("logops");
 const cors = require("cors");
+const privates = require("./privates");
 
 // Express config
 const port = process.env.PORT || 3000;
@@ -24,7 +25,7 @@ mongoose
 mongoose
     .connection
     .on("connected", () => console.log("Connected to DB!"));
-mongoose.connect("mongodb://elot:testdb@18.188.26.113:27017/leaderboardDB");
+mongoose.connect(privates.mongourl);
 
 // Express middleware
 app.use(cors({origin: "*"}));
