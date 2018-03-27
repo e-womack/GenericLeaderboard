@@ -28,7 +28,7 @@ export default class Leaderboard extends Component {
                     winCount: player.winCount,
                     lossCount: player.lossCount
                 }
-            }).sort((p1, p2) => p1.tskillrating < p2.tskillrating).splice(0, 5);
+            }).sort((p1, p2) => p2.tskillrating - p1.tskillrating).splice(0, 5);
             this.setState({top5Players})
         })).catch((err) => console.error("Invalid/No response from server"));
     }
