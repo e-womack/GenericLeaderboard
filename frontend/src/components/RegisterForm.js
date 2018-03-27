@@ -50,15 +50,17 @@ export default class RegisterForm extends Component {
 
     render() {
         let warningMessage = <ErrorMessage message=" "/>
-        if (this.state.takenData.findIndex((a) => a.name === this.state.name) !== -1) {
+        if (this.state.takenData.findIndex((a) => a.name.toLowerCase() === this.state.name.toLowerCase()) !== -1) {
             warningMessage = (<ErrorMessage message="Username is taken"/>)
         }
-        if (this.state.takenData.findIndex((a) => a.email === this.state.email) !== -1) {
+        if (this.state.takenData.findIndex((a) => a.email.toLowerCase() === this.state.email.toLowerCase()) !== -1) {
             warningMessage = (<ErrorMessage message="Email is taken"/>)
         }
         if (this.state.incorrectPasswordVerify) {
             warningMessage = (<ErrorMessage message="Passwords do not match"/>)
-
+        }
+        if (this.props.submitErrorMessage) {
+            warningMessage = (<ErrorMessage message={this.props.submitErrorMessage}/>)
         }
         return (
             <div id="login-box" className="registerForm">
