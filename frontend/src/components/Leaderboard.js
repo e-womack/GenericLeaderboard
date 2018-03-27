@@ -17,12 +17,25 @@ export default class Leaderboard extends Component {
 
     }
     loadCandidates = () => {
-        fetch(`${privates.url}/top5player`).then((response) => response.json().then((actualResponse) => this.setState({top5Players: actualResponse}))).catch((err) => console.error("Invalid/No response from server"));
+        //grab all players
+        fetch(`${privates.url}/player`).then((response) => response.json().then((actualResponse) => {
+            //calculate ratings for each player,sort them all by rating, get top 5
+            const top5Players = actualResponse.map(player => {
+                return {
+                    name: player.name,
+                    id: player._id,
+                    tskillrating: Math.round(player.mu * 100),
+                    winCount: player.winCount,
+                    lossCount: player.lossCount
+                }
+            }).sort((p1, p2) => p1.tskillrating < p2.tskillrating).splice(0, 5);
+            this.setState({top5Players})
+        })).catch((err) => console.error("Invalid/No response from server"));
     }
 
     profilePageHandler = (playerID) => {
         //Change current route to profile page with ID
-        window.alert("Test " + playerID);
+        window.alert(playerID);
     }
 
     render() {
@@ -35,6 +48,8 @@ export default class Leaderboard extends Component {
                             key={player.id}
                             click={() => this.profilePageHandler(player.id)}
                             name={player.name}
+                            winCount={player.winCount}
+                            lossCount={player.lossCount}
                             tskillrating={player.tskillrating}/>
                     })}
             </ol>

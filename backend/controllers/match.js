@@ -87,7 +87,7 @@ exports.createMatch = (req, res) => {
         if (err) {
             return res
                 .status(500)
-                .send(err);
+                .json({err});
         }
         match.player1RatingChange = ratingResults.p1Change;
         match.player2RatingChange = ratingResults.p2Change;
@@ -118,7 +118,7 @@ exports.createMatch = (req, res) => {
                 if (err) {
                     return res
                         .status(500)
-                        .send("Error adding match");
+                        .json({message: "Error adding match"});
                 }
                 Player.findOneAndUpdate({
                     name: match.player2Name
@@ -140,11 +140,11 @@ exports.createMatch = (req, res) => {
                     if (err) {
                         return res
                             .status(500)
-                            .send("Error adding match");
+                            .json({message: "Error adding match"});
                     }
                     res
                         .status(200)
-                        .send(result);
+                        .json(result);
                 });
             });
         });
@@ -156,11 +156,11 @@ exports.getAll = (req, res) => {
         if (err) {
             return res
                 .status(500)
-                .send(err);
+                .json({err});
         }
         res
             .status(200)
-            .send(result);
+            .json(result);
     });
 };
 
@@ -172,16 +172,16 @@ exports.getMatch = (req, res) => {
         if (err) {
             return res
                 .status(500)
-                .send("There was a problem finding the match");
+                .json({message: "There was a problem finding the match"});
         }
         if (!result) {
             return res
                 .status(404)
-                .send(`No match found with id ${req.params.id}`);
+                .json({message: `No match found with id ${req.params.id}`});
         }
         res
             .status(200)
-            .send(result);
+            .json(result);
     });
 };
 
@@ -192,15 +192,15 @@ exports.deleteMatch = (req, res) => {
         if (err) {
             return res
                 .status(500)
-                .send("There was a problem finding the match");
+                .json({message: "There was a problem finding the match"});
         }
         if (!result) {
             return res
                 .status(404)
-                .send(`No match found with id ${req.params.id}`);
+                .json({message: `No match found with id ${req.params.id}`});
         }
         res
             .status(200)
-            .send(result);
+            .json(result);
     });
 };

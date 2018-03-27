@@ -33,17 +33,17 @@ exports.createPlayer = (req, res) => {
         if (err) {
             return res
                 .status(500)
-                .send(err);
+                .json({err});
         }
         Player.create(player, (err, result) => {
             if (err) {
                 return res
                     .status(500)
-                    .send(err);
+                    .json({err});
             }
             res
                 .status(200)
-                .send(result);
+                .json(result);
         });
     });
 };
@@ -53,11 +53,11 @@ exports.getAll = (req, res) => {
         if (err) {
             return res
                 .status(500)
-                .send(err);
+                .json({err});
         }
         res
             .status(200)
-            .send(result);
+            .json(result);
     });
 };
 
@@ -69,16 +69,16 @@ exports.getPlayer = (req, res) => {
         if (err) {
             return res
                 .status(500)
-                .send("There was a problem finding the player");
+                .json({message: "There was a problem finding the player"});
         }
         if (!result) {
             return res
                 .status(404)
-                .send(`No player found with id ${req.params.id}`);
+                .json({message: `No player found with id ${req.params.id}`});
         }
         res
             .status(200)
-            .send(result);
+            .json(result);
     });
 };
 
@@ -89,16 +89,16 @@ exports.deletePlayer = (req, res) => {
         if (err) {
             return res
                 .status(500)
-                .send("There was a problem finding the player");
+                .json({message: "There was a problem finding the player"});
         }
         if (!result) {
             return res
                 .status(404)
-                .send(`No player found with id ${req.params.id}`);
+                .json({message: `No player found with id ${req.params.id}`});
         }
         res
             .status(200)
-            .send(result);
+            .json(result);
     });
 };
 
@@ -107,15 +107,15 @@ exports.updatePlayer = (req, res) => {
         if (err) {
             return res
                 .status(500)
-                .send("There was a problem finding the player");
+                .json({message: "There was a problem finding the player"});
         }
         if (!result) {
             return res
                 .status(404)
-                .send(`No player found with id ${req.params.id}`);
+                .json({message: `No player found with id ${req.params.id}`});
         }
         res
             .status(200)
-            .send(result);
+            .json(result);
     });
 };
